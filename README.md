@@ -14,7 +14,7 @@ Then stepping forward or backward through the next/previous markers will keep th
 Then only overtake markers will be presented, and still focus will be on the current car.
 
 * **"Clear the marker filters"**
-Return to the default state of all marker types for all cars will be presented.
+Return to the default state where all marker types for all cars will be presented.
 
 The provided profile has commands that can be used with speech, but is also intended to work with a gamepad/controller so the use of speech recognition is not required.
 
