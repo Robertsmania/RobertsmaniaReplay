@@ -1,6 +1,6 @@
 # RobertsmaniaPitGirl - iRacing Replay
 
-This project presents a plugin for Voice Attack that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
+This project presents a plugin for VoiceAttack that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
 The iRacing telemetry data is monitored constantly and markers are recorded when any driver has an offtrack incident, overtake, undertake, or radio broadcast.  The race start and driver finishes are also entered as markers.
 
@@ -405,15 +405,15 @@ The provided profile does have the commands setup for speech recognition and it 
 There are two boolean variables set on initialization that control the speech synthesis.  Both of those get set to true by default, but you can esaily change that in the Initialize command.
 
 * SayAnything - Controls whether anything is said.  If this is true, the system will speak.  If it is false it will not say anything.
-* SayAnnouncements - Secondary value to determine whether announcements like "Kris Robers had an Overtake" are made when replay markers are played (but if SayAnything is false, then SayAnnouncements has no effect).
+* SayAnnouncements - Secondary value to determine whether announcements like "Kris Roberts had an Overtake" are made when replay markers are played (but if SayAnything is false, then SayAnnouncements has no effect).
 
-In the default logic, announcemetns are made when there is no marker car filter and no marker type filter - it announces the driver and the marker type.  If the marker car filter is set but the maker types are on wildcard, it will announce the marker type.  If the marker type filter is set, it does not announce anything since that seems like it would get annoying to just call out driver names.  Feel free to modify the logic for speech to suit your taste.
+In the default logic for [Next Marker] and [Previous Marker] announcements are made when there is no marker car filter and no marker type filter - it announces the driver and the marker type.  If the marker car filter is set but the maker types are on wildcard, it will announce the marker type.  If the marker type filter is set, it does not announce anything since that seems like it would get annoying to just call out driver names.  Feel free to modify the logic for speech to suit your taste.
 
-Listening - the way I use the system, I have Voice Attack set to not listen by default.  That makes it so I can talk on stream about whatever and have no fear that it will accidently execute commands if I say words that would otherwise trigger actions.  In the profile options I specify "Pit Girl" on the Profile General tab as the value to "Override listening if my spoken command begins with:".  I encourage you to consider using a different name or identifier for your system.
+Listening - the way I use the system, I have VoiceAttack set to not listen by default.  That makes it so I can talk on stream about whatever and have no fear that it will accidently execute commands if I say words that would otherwise trigger actions.  In the profile options I specify "Pit Girl" on the Profile General tab as the value to "Override listening if my spoken command begins with:".  I encourage you to consider using a different name or identifier for your system.
 
 ## Plugin Commands
 
-The plugin provides these commands to be used within a Voice Attack profile:
+The plugin provides these commands to be used within a VoiceAttack profile:
 ```
 RobertsmaniaPitGirlReplay commands:
 
@@ -453,7 +453,7 @@ Marker_Summary_CarNumber | {TXT:~~CarNumber} {INT:~~CarNumberMarkerCount}!
 ```
 
 ## Suggested Use
-Start Voice Attack with the RobertsmaniaPitGirlReplay profile/plugin setup.
+Start VoiceAttack with the RobertsmaniaPitGirlReplay profile/plugin setup.
 
 Join an iRacing session.
 
@@ -468,25 +468,27 @@ Use the features of the profile/plugin to review the markers of events that happ
 * Clear the Marker Filters
 * Set the Marker Type Filter to something specific like Overtakes
 * Cycle through the markers seeing all the overtakes in the session.
-* Or whetever you like...
+* Or whatever you like...
 
-Leave that session and join anohter.  Repeat.  
+Leave that session and join another.  Repeat.  
 
 Enjoy.
 
 ## Installation
 
-You must own a license for Voice Attack to be able to use this (or any other) plugin: https://voiceattack.com
+You must own a license for VoiceAttack to be able to use this (or any other) plugin: https://voiceattack.com
 
 Download the RobertsmaniaPitGirlReplay.vax file from the [releases page](https://github.com/Robertsmania/RobertsmaniaPitGirl/releases) on this repository.
 
-In the Voice Attack options, disable plugin support if it is currently enabled and restart Voice Attack.
+In the VoiceAttack options, disable plugin support if it is currently enabled and restart VoiceAttack.
 
 Import the RobertsmaniaPitGirlReplay.vax.  This will install the plugin and sample profile.
 
-Enable plugin support in the Voice Attack options.  Restart Voice Attack.
+Enable plugin support in the VoiceAttack options.  Restart VoiceAttack.
 
 Select the RobertsmaniaPitGirlReplay profile.  The plugin should be initialized and the commands in the profile are available.
 
-If you are new to Voice Attack, be sure to run through the training to get the windows speech recognition to recognize your voice.  Check out **Train your speech engine** and the other helpful tips: 
-[Voice Attack Tips and How-To - https://voiceattack.com/howto.aspx](https://voiceattack.com/howto.aspx)
+If you are new to VoiceAttack, be sure to run through the training to get the windows speech recognition to recognize your voice.  
+
+Check out **"Train your speech engine"** and the other helpful tips: 
+[VoiceAttack Tips and How-To - https://voiceattack.com/howto.aspx](https://voiceattack.com/howto.aspx)
