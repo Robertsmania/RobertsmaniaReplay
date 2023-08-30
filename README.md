@@ -398,6 +398,19 @@ These are the high level commands in the provided profile:
 
 This is a basic set of commands that demonstrates the features of the plugin.  Feel free to create your own, modify these or start from scratch.
 
+## Speech
+
+The provided profile does have the commands setup for speech recognition and it will have the system confirm things like camera changes with speech synthesis.
+
+There are two boolean variables set on initialization that control the speech synthesis.  Both of those get set to true by default, but you can esaily change that in the Initialize command.
+
+* SaySomething - Controls whether anything is said.  If this is true, the system will speak.  If it is false it will not say anything.
+* SayAnnouncements - Secondary value to determine whether announcements like "Kris Robers had an Overtake" are made when replay markers are played (but if SaySomething is false, then SayAnnouncements has no effect).
+
+In the default logic, announcemetns are made when there is no marker car filter and no marker type filter - it announces the driver and the marker type.  If the marker car filter is set but the maker types are on wildcard, it will announce the marker type.  If the marker type filter is set, it does not announce anything since that seems like it would get annoying to just call out driver names.  Feel free to modify the logic for speech to suit your taste.
+
+Listening - the way I use the system, I have Voice Attack set to not listen by default.  That makes it so I can talk on stream about whatever and have no fear that it will accidently execute commands if I say words that would otherwise trigger actions.  In the profile options I specify "Pit Girl" on the Profile General tab as the value to "Override listening if my spoken command begins with:".  I encourage you to consider using a different name or identifier for your system.
+
 ## Plugin Commands
 
 The plugin provides these commands to be used within a Voice Attack profile:
@@ -474,3 +487,6 @@ Import the RobertsmaniaPitGirlReplay.vax.  This will install the plugin and samp
 Enable plugin support in the Voice Attack options.  Restart Voice Attack.
 
 Select the RobertsmaniaPitGirlReplay profile.  The plugin should be initialized and the commands in the profile are available.
+
+If you are new to Voice Attack, be sure to run through the training to get the windows speech recognition to recognize your voice.  Check out **Train your speech engine** and the other helpful tips: 
+[Voice Attack Tips and How-To - https://voiceattack.com/howto.aspx](https://voiceattack.com/howto.aspx)
