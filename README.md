@@ -1,19 +1,19 @@
 # RobertsmaniaPitGirl - iRacing Replay
 
-This project presents a plugin for [VoiceAttack](https://voiceattack.com/) that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
+This project presents a plugin for <a href="https://voiceattack.com/" target="_blank">VoiceAttack</a> that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
 The iRacing telemetry data is monitored constantly and markers are recorded when any driver has an offtrack incident, overtake, undertake, or radio broadcast.  The race start and driver finishes are also entered as markers.
 
 The replay marker data can be reviewed and filtered by car and/or marker type.  This makes it easy to go through the replay seeing all the events that were recorded for a specific car, all the events of a particular marker type for any car, or any marker type for any car.
 
 For example:
-* "Filter markers by the current car"
+* **"Filter markers by the current car"**
 Then stepping forward or backward through the next/previous markers will keep the focus on the current car.  This alone is an improvement over the native iRacing next/previous incident review.
 
-* "Filter markers by overtakes"
+* **"Filter markers by overtakes"**
 Then only overtake markers will be presented, and still focus will be on the current car.
 
-* "Clear the marker filters"
+* **"Clear the marker filters"**
 Return to the default state of all marker types for all cars will be presented.
 
 The provided profile has commands that can be used with speech, but is also intended to work with a gamepad/controller so the use of speech recognition is not required.
@@ -476,9 +476,9 @@ Enjoy.
 
 ## Installation
 
-You must own a license for VoiceAttack to be able to use this (or any other) plugin: [https://voiceattack.com/purchase.aspx](https://voiceattack.com/purchase.aspx)
+You must own a license for VoiceAttack to be able to use this (or any other) plugin: <a href="https://voiceattack.com/purchase.aspx" target="_blank">https://voiceattack.com/purchase.aspx</a>.
 
-Download the RobertsmaniaPitGirlReplay.vax file from the [releases page](https://github.com/Robertsmania/RobertsmaniaPitGirl/releases) on this repository.
+Download the RobertsmaniaPitGirlReplay.vax file from the <a href="https://github.com/Robertsmania/RobertsmaniaPitGirl/releases" target="_blank">Releases Page</a> on this repository.
 
 In the VoiceAttack options, disable plugin support if it is currently enabled and restart VoiceAttack.
 
@@ -491,4 +491,4 @@ Select the RobertsmaniaPitGirlReplay profile.  The plugin should be initialized 
 If you are new to VoiceAttack, be sure to run through the training to get the windows speech recognition to recognize your voice.  
 
 Check out **"Train your speech engine"** and the other helpful tips: 
-[VoiceAttack Tips and How-To - https://voiceattack.com/howto.aspx](https://voiceattack.com/howto.aspx)
+<a href="https://voiceattack.com/howto.aspx" target="_blank">VoiceAttack Tips and How-To - https://voiceattack.com/howto.aspx</a>
