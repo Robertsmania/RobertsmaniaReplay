@@ -1,4 +1,4 @@
-# RobertsmaniaPitGirl - Replay
+# RobertsmaniaPitGirl - iRacing Replay
 
 This project presents a plugin for Voice Attack that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
