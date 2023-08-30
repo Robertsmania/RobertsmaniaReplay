@@ -404,8 +404,8 @@ The provided profile does have the commands setup for speech recognition and it 
 
 There are two boolean variables set on initialization that control the speech synthesis.  Both of those get set to true by default, but you can esaily change that in the Initialize command.
 
-* SayAnything - Controls whether anything is said.  If this is true, the system will speak.  If it is false it will not say anything.
-* SayAnnouncements - Secondary value to determine whether announcements like "Kris Roberts had an Overtake" are made when replay markers are played (but if SayAnything is false, then SayAnnouncements has no effect).
+* **SayAnything** - Controls whether anything is said.  If this is true, the system will speak.  If it is false it will not say anything.
+* **SayAnnouncements** - Secondary value to determine whether announcements like "Kris Roberts had an Overtake" are made when replay markers are played (but if SayAnything is false, then SayAnnouncements has no effect).
 
 In the default logic for [Next Marker] and [Previous Marker] announcements are made when there is no marker car filter and no marker type filter - it announces the driver and the marker type.  If the marker car filter is set but the maker types are on wildcard, it will announce the marker type.  If the marker type filter is set, it does not announce anything since that seems like it would get annoying to just call out driver names.  Feel free to modify the logic for speech to suit your taste.
 
