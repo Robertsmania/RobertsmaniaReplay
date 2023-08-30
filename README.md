@@ -1,6 +1,6 @@
 # RobertsmaniaPitGirl - iRacing Replay
 
-This project presents a plugin for <a href="https://voiceattack.com/" target="_blank">VoiceAttack</a> that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
+This project presents a plugin for <a href="https://voiceattack.com/" target="_blank" rel="noopener noreferrer">VoiceAttack</a> that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
 The iRacing telemetry data is monitored constantly and markers are recorded when any driver has an offtrack incident, overtake, undertake, or radio broadcast.  The race start and driver finishes are also entered as markers.
 
@@ -476,9 +476,9 @@ Enjoy.
 
 ## Installation
 
-You must own a license for VoiceAttack to be able to use this (or any other) plugin: <a href="https://voiceattack.com/purchase.aspx" target="_blank">https://voiceattack.com/purchase.aspx</a>.
+You must own a license for VoiceAttack to be able to use this (or any other) plugin: <a href="https://voiceattack.com/purchase.aspx" target="_blank" rel="noopener noreferrer">https://voiceattack.com/purchase.aspx</a>.
 
-Download the RobertsmaniaPitGirlReplay.vax file from the <a href="https://github.com/Robertsmania/RobertsmaniaPitGirl/releases" target="_blank">Releases Page</a> on this repository.
+Download the RobertsmaniaPitGirlReplay.vax file from the <a href="https://github.com/Robertsmania/RobertsmaniaPitGirl/releases" target="_blank" rel="noopener noreferrer">Releases Page</a> on this repository.
 
 In the VoiceAttack options, disable plugin support if it is currently enabled and restart VoiceAttack.
 
@@ -491,4 +491,4 @@ Select the RobertsmaniaPitGirlReplay profile.  The plugin should be initialized 
 If you are new to VoiceAttack, be sure to run through the training to get the windows speech recognition to recognize your voice.  
 
 Check out **"Train your speech engine"** and the other helpful tips: 
-<a href="https://voiceattack.com/howto.aspx" target="_blank">VoiceAttack Tips and How-To - https://voiceattack.com/howto.aspx</a>
+<a href="https://voiceattack.com/howto.aspx" target="_blank" rel="noopener noreferrer">VoiceAttack Tips and How-To - https://voiceattack.com/howto.aspx</a>
