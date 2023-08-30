@@ -1,6 +1,6 @@
 # RobertsmaniaPitGirl - iRacing Replay
 
-This project presents a plugin for VoiceAttack that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
+This project presents a plugin for [VoiceAttack](https://voiceattack.com/) that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
 The iRacing telemetry data is monitored constantly and markers are recorded when any driver has an offtrack incident, overtake, undertake, or radio broadcast.  The race start and driver finishes are also entered as markers.
 
@@ -440,7 +440,7 @@ PlayMarker_First
 SeekMarker_First
 iRacingIncident_Next
 iRacingIncident_Previous
-Marker_Count | {INT:~~MarkerCount}
+Marker_Count | {INT:~~MarkerCount}!
 Marker_Summary | {TXT:~~MarkerSummary}! {TXT:~~MostOvertakesCarNum}! 
                  {TXT:~~MostIncidentsCarNum}! {TXT:~~MostBroadcastsCarNum}!
                  {INT:~~IncidentMarkerCount}! {INT:~~OvertakeMarkerCount}!
@@ -467,7 +467,7 @@ Use the features of the profile/plugin to review the markers of events that happ
 * Go back to the start
 * Clear the Marker Filters
 * Set the Marker Type Filter to something specific like Overtakes
-* Cycle through the markers seeing all the overtakes in the session.
+* Cycle through the markers seeing all the overtakes in the session
 * Or whatever you like...
 
 Leave that session and join another.  Repeat.  
@@ -476,7 +476,7 @@ Enjoy.
 
 ## Installation
 
-You must own a license for VoiceAttack to be able to use this (or any other) plugin: https://voiceattack.com
+You must own a license for VoiceAttack to be able to use this (or any other) plugin: [https://voiceattack.com/purchase.aspx](https://voiceattack.com/purchase.aspx)
 
 Download the RobertsmaniaPitGirlReplay.vax file from the [releases page](https://github.com/Robertsmania/RobertsmaniaPitGirl/releases) on this repository.
 
