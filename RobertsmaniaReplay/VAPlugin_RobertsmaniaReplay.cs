@@ -5,10 +5,12 @@ All rights reserved.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using iRacingSdkWrapper;
 using iRSDKSharp;
+using Newtonsoft.Json;
 
 namespace Robertsmania
 {
@@ -18,7 +20,7 @@ namespace Robertsmania
         private static dynamic _vaProxy;
         private static SdkWrapper _iRSDKWrapper;
 
-        private const float cVersion = 1.001f;
+        private const float cVersion = 1.002f;
         private const int cUpdatesPerSec = 4;
         public const int cThrottleMSecs = 1000 / cUpdatesPerSec;
         public const int cMaxCars = 64;
@@ -65,6 +67,7 @@ namespace Robertsmania
         public static bool g_IsOnTrackCar = false;
         public static bool g_IsReplayPlaying = false;
         private static string g_SessionDisplayName = "not yet in a session";
+        private static string g_SimMode = "";
 
         public static iRacingSdkWrapper.Bitfields.SessionFlag g_CurrentSessionFlags;
         public static int g_CamCarIdx = -1;
@@ -357,6 +360,7 @@ namespace Robertsmania
             g_TrackPositions = null;
             g_LeaderFinished = false;
             g_FinalLap = -1;
+            g_CarIdxNotInWorldTimes = new int[cMaxCars];
             //There is no before
             for (int i = 0; i < g_Drivers.Length; i++)
             {
@@ -394,7 +398,7 @@ namespace Robertsmania
             g_CurrentSessionNum = e.TelemetryInfo.SessionNum.Value;
 
             //Do this each update just in case, bad to miss a session transition
-            if (g_SessionNames != null && g_SessionNames.Count > g_CurrentSessionNum && g_SessionNames.Count >= e.TelemetryInfo.SessionNum.Value)
+            if (g_SessionNames != null && g_CurrentSessionNum >= 0 && g_SessionNames.Count > g_CurrentSessionNum && g_SessionNames.Count >= e.TelemetryInfo.SessionNum.Value)
             {
                 string sessionName = g_SessionNames[g_CurrentSessionNum];
                 switch (sessionName)
@@ -548,6 +552,7 @@ namespace Robertsmania
                         //Keep track of cars blinking out of the world
                         if (g_TrackPositions[carIdx].TrackSurface == TrackSurfaces.NotInWorld)
                         {
+                            //_vaProxy.WriteToLog($"Car {carIdx} blinking out. {g_CurrentSessionTime}", "yellow");
                             g_CarIdxNotInWorldTimes[carIdx] = g_CurrentSessionTime;
                         }
                         //Cars in pits dont count, push to bottom of standings
@@ -579,7 +584,7 @@ namespace Robertsmania
                             
                             //Hack for race start when everyone is on Lap 1 in g_CarIdxLap but before the start/finish
                             if (new[]{SessionStates.Racing, SessionStates.Checkered}.Contains(g_SessionState) &&
-                                (g_CarIdxLap[carIdx] > 1 || g_TrackPositions[carIdx].DistPct < 0.25))
+                                (g_CarIdxLap[carIdx] >= 1 || g_TrackPositions[carIdx].DistPct < 0.25))
                             {
                                 g_TrackPositions[carIdx].Lap = g_CarIdxLap[carIdx];
                             }
@@ -600,7 +605,7 @@ namespace Robertsmania
                 {
                     //Dont change cars that have finished
                     if (g_TrackPositions[p].Finished)
-                    { 
+                    {
                         continue;
                     }
                     else if (g_TrackPositions[p].Position == -1) //New here?
@@ -611,24 +616,21 @@ namespace Robertsmania
                         g_TrackPositions[p].PositionUpTime = 0;
                         g_TrackPositions[p].PositionDownTime = 0;
                     }
-                    else if (g_TrackPositions[p].DistPct >= 0 && 
-                        new[]{TrackSurfaces.OnTrack, TrackSurfaces.OffTrack}.Contains(g_TrackPositions[p].TrackSurface) && 
+                    //Racing track surface and not blinking out?
+                    else if (g_TrackPositions[p].DistPct >= 0 &&
+                        TrackSurfacesCheck(g_TrackPositions[p].TrackSurface) &&
                         g_TrackPositions[p].Position < p + 1) //undertake
                     {
-                        //Already in an undertake? Only set old position if not
-                        if (g_TrackPositions[p].PositionDownTime == 0)
-                        {
-                            //DEBUG watch the overtaken
-                            //_iRSDKWrapper.Replay.SetPlaybackSpeed(0);
-                            //_iRSDKWrapper.Camera.SwitchToCar(g_TrackPositions[p].Driver.CarNumberRaw);
-                            //_vaProxy.WriteToLog("Undertake Detected");
+                        //DEBUG watch the overtaken
+                        //_iRSDKWrapper.Replay.SetPlaybackSpeed(0);
+                        //_iRSDKWrapper.Camera.SwitchToCar(g_TrackPositions[p].Driver.CarNumberRaw);
+                        //_vaProxy.WriteToLog($"Undertake Detected {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
 
-                            //Set time in second pass below if verified
-                            //g_TrackPositions[p].PositionDownTime = g_CurrentSessionTime;
-                            g_TrackPositions[p].PositionDownFrom = g_TrackPositions[p].Position;
+                        //Set time in second pass below if verified
+                        //g_TrackPositions[p].PositionDownTime = g_CurrentSessionTime;
+                        g_TrackPositions[p].PositionDownFrom = g_TrackPositions[p].Position;
 
-                            //_iRSDKWrapper.Replay.SetPlaybackSpeed(1);
-                        }
+                        //_iRSDKWrapper.Replay.SetPlaybackSpeed(1);
                         g_TrackPositions[p].Position = p + 1;
                     }
                 }
@@ -641,9 +643,10 @@ namespace Robertsmania
                         continue;
                     }
                     else if (g_TrackPositions[p].DistPct >= 0 &&
-                        new[]{TrackSurfaces.OnTrack, TrackSurfaces.OffTrack}.Contains(g_TrackPositions[p].TrackSurface) && 
+                        TrackSurfacesCheck(g_TrackPositions[p].TrackSurface) &&
                         g_TrackPositions[p].Position > p + 1) //overtake 
                     {
+                        //_vaProxy.WriteToLog($"Overtake Suspected {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                         //Already in an overtake? Only set timer and old position if not
                         if (g_TrackPositions[p].PositionUpTime == 0)
                         {
@@ -651,15 +654,19 @@ namespace Robertsmania
                             //If there is one, then consider it valid - othewhise pit/tow/disconnect/freebie
                             TrackPosition[] lostPositions = Array.FindAll(g_TrackPositions, t => t.PositionDownFrom == p + 1);
                             if (lostPositions.Any())
-                            //TODO this array/find feels like a total hack to get around OffTrack being the default for a new struct
                             {
+                                //TODO handle multiple lost position results?!?
                                 TrackPosition lostPosition = lostPositions.First();
-                                if (new[] { TrackSurfaces.OnTrack, TrackSurfaces.OffTrack }.Contains(lostPosition.TrackSurface))
+                                //_vaProxy.WriteToLog($"LostPosition {lostPosition.Driver.CarIdx} {lostPosition.TrackSurface.ToString()} {lostPositions.Count()} {g_CurrentSessionTime}");
+                                //Racing track surface, lost car blinking out, this car blinking out?
+                                if (TrackSurfacesCheck(lostPosition.TrackSurface) && 
+                                    NotInWorldPositionCheck(lostPosition.Driver.CarIdx) && 
+                                    NotInWorldPositionCheck(g_TrackPositions[p].Driver.CarIdx))
                                 {
                                     //DEBUG watch the overtake
                                     //_iRSDKWrapper.Replay.SetPlaybackSpeed(0);
                                     //_iRSDKWrapper.Camera.SwitchToCar(g_TrackPositions[p].Driver.CarNumberRaw);
-                                    //_vaProxy.WriteToLog("Overtake Detected");
+                                    //_vaProxy.WriteToLog($"Overtake Confirmed {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                                     g_TrackPositions[p].PositionUpTime = g_CurrentSessionTime;
                                     g_TrackPositions[p].PositionUpFrom = g_TrackPositions[p].Position;
                                     //_iRSDKWrapper.Replay.SetPlaybackSpeed(1);
@@ -667,7 +674,7 @@ namespace Robertsmania
                             }
                             else
                             {
-                                //_vaProxy.WriteToLog("Overtake Cancelled - phantom/freebie? " + g_TrackPositions[p]);
+                                //_vaProxy.WriteToLog($"Overtake Cancelled {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                             }
                         }
                         g_TrackPositions[p].Position = p + 1;
@@ -685,16 +692,20 @@ namespace Robertsmania
                     else if (g_TrackPositions[p].PositionDownFrom != -1 &&
                             g_TrackPositions[p].PositionDownTime == 0)
                     {
+                        //_vaProxy.WriteToLog($"Undertake verifying {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                         //Check for an overtake PositionUpFrom that matches the undertake position
                         //If there is one, then consider it valid - othewhise pit/tow/disconnect/freebie
                         TrackPosition[] gainedPositions = Array.FindAll(g_TrackPositions, t => t.PositionUpFrom == p + 1);
                         if (gainedPositions.Any())
-                        //TODO this array/find feels like a total hack to get around OffTrack being the default for a new struct
                         {
                             TrackPosition gainedPosition = gainedPositions.First();
-                            if (new[] { TrackSurfaces.OnTrack, TrackSurfaces.OffTrack }.Contains(gainedPosition.TrackSurface))
+                            //_vaProxy.WriteToLog($"LostPosition {gainedPosition.Driver.CarIdx} {gainedPosition.TrackSurface.ToString()} {gainedPositions.Count()} {g_CurrentSessionTime}");
+                            //Racing track surface and the other driver not blinking out?
+                            if (TrackSurfacesCheck(gainedPosition.TrackSurface) && 
+                                NotInWorldPositionCheck(gainedPosition.Driver.CarIdx))
                             {
                                 g_TrackPositions[p].PositionDownTime = g_CurrentSessionTime;
+                                //_vaProxy.WriteToLog($"Undertake Confirmed {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                                 //g_TrackPositions[p].PositionDownFrom = g_TrackPositions[p].Position;
                             }
                         }
@@ -702,6 +713,7 @@ namespace Robertsmania
                         {
                             //_vaProxy.WriteToLog("Undertake Cancelled - phantom/freebie? " + g_TrackPositions[p]);
                             g_TrackPositions[p].PositionDownFrom = -1;
+                            //_vaProxy.WriteToLog($"Undertake Cancelled {g_TrackPositions[p].Driver.CarIdx} p:{g_TrackPositions[p].Position} {g_CurrentSessionTime}");
                         }
                     }
                     else 
@@ -1020,8 +1032,6 @@ namespace Robertsmania
             if (subSessionID != g_SubSessionID)
             {
                 //New Session - reset everything
-                PrintInfo();
-                _vaProxy.WriteToLog("New Session");
                 g_SubSessionID = subSessionID;
                 g_MarkerTypeFilter = MarkerType.Wildcard;
                 _vaProxy.SetText("MarkerTypeFilter","Wildcard");
@@ -1040,6 +1050,7 @@ namespace Robertsmania
                 g_LeaderFinished = false;
                 g_PlayerCarDriverIncidentCount = 0; 
                 g_CarIdxTimeLapPositions = new List<TimeLapPosition>[cMaxCars];
+                g_SimMode = "";
                 for (int i = 0; i < cMaxCars; i++)
                 {
                     g_CarIdxTimeLapPositions[i] = new List<TimeLapPosition>();
@@ -1051,6 +1062,14 @@ namespace Robertsmania
                 {
                     g_SessionNames.Add(sessionNameStr);
                     s++;
+                }
+
+                if (e.SessionInfo["WeekendInfo"]["SimMode"].TryGetValue(out string simModeStr))
+                {
+                    if (simModeStr != null)
+                    {
+                        g_SimMode =  simModeStr;
+                    }
                 }
 
                 if (e.SessionInfo["WeekendInfo"]["NumCarClasses"].TryGetValue(out string numCarClassesStr))
@@ -1107,6 +1126,8 @@ namespace Robertsmania
                 {
                     _vaProxy.WriteToLog("NO CAMERAS in session update!", "red");
                 }
+                PrintInfo();
+                _vaProxy.WriteToLog("New Session");
             }
         }
 
@@ -1119,17 +1140,30 @@ namespace Robertsmania
             return ((g_CurrentSessionTime - g_CarIdxIncidentMarkerTimes[carIdx]) > cIncidentMarkerTimeoutSecs);
         }
 
+        public static bool TrackSurfacesCheck(TrackSurfaces trackSurface)
+        {
+            return new[] { TrackSurfaces.OnTrack, TrackSurfaces.OffTrack }.Contains(trackSurface);
+        }
+
+        public static bool NotInWorldPositionCheck(int carIdx)
+        {
+            return g_CurrentSessionTime - g_CarIdxNotInWorldTimes[carIdx] > cNotInWorldTimeoutSecs;
+        }
+
         public static bool PositionMarkerTimeOk(int carIdx)
         {
             if (carIdx < 0)
             {
                 return false;
             }
-            //If they have just been blinking/NotInWorld, dont set position change markers
-            if ((g_CurrentSessionTime - g_CarIdxNotInWorldTimes[carIdx]) < cNotInWorldTimeoutSecs)
+            //If they have just been blinking/NotInWorld, dont set position change markers.
+            //This was checked when overtake/undertakes are detected, but doing it again just to be sure.
+            if (!NotInWorldPositionCheck(carIdx))
             {
+                //_vaProxy.WriteToLog($"Car {carIdx} blinking out prevented position marker. {g_CurrentSessionTime}", "yellow");
                 return false;
             }
+            //_vaProxy.WriteToLog($"Position Time Check Car {carIdx} {g_CurrentSessionTime} {g_CarIdxPositionMarkerTimes[carIdx]}", "yellow");
             return ((g_CurrentSessionTime - g_CarIdxPositionMarkerTimes[carIdx]) > cPositionMarkerTimeoutSecs);
         }
 
@@ -1172,6 +1206,7 @@ namespace Robertsmania
         {
             string infoStr = g_SubSessionID + " S:" + g_ReplaySessionNum + " T:" + g_ReplaySessionTime + " F:" + g_ReplayFrameNum + " " + g_CurrentSessionFlags + " ";
             infoStr += (g_WatchingLive) ? "LIVE" : "Replaying";
+            infoStr += $" SimMode: {g_SimMode}";
             string markersStr = "Markers:" + g_Markers.Count + "\n";
             string flagsStr = "Flags:" + g_TimeFlagStatus.Count + "\n";
             int i = 0;
@@ -1187,8 +1222,8 @@ namespace Robertsmania
                 }
             }
             _vaProxy.WriteToLog(markersStr);
-            _vaProxy.WriteToLog("Race Start Event: " + g_RaceStartEvent);
-            _vaProxy.WriteToLog(flagsStr);
+            //_vaProxy.WriteToLog("Race Start Event: " + g_RaceStartEvent);
+            //_vaProxy.WriteToLog(flagsStr);
             _vaProxy.WriteToLog(infoStr);
         }
 
@@ -1236,9 +1271,15 @@ namespace Robertsmania
 
         private static void AddMarker(Event newEvent)
         {
+            if (g_SimMode != "full") 
+            {
+                //Dont record markers unless the sim is actually running (saved replay file).
+                return;
+            }
             if (!g_Markers.Contains(newEvent))
             {
                 g_Markers.Add(newEvent);
+                _vaProxy.WriteToLog($"Marker added: {newEvent}", "green");
                 //_vaProxy.WriteToLog("Marker added: " + g_Markers.Count());
             }
             //computers are fast
@@ -1255,6 +1296,73 @@ namespace Robertsmania
                 //_vaProxy.SetText("~~CarNumber",g_Drivers[newEvent.CarIdx].CarNumStr);
                 //_vaProxy.Command.Execute("A0 ir2pitgirl - Watch Car Number");
             //}    
+        }
+
+        private static void SaveMarkers(List<Event> markers)
+        {
+            // Get the "My Documents" folder path
+            string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Create a new folder named "PitGirlReplays" if it doesn't exist
+            string outputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
+            Directory.CreateDirectory(outputFolderPath);
+
+            if (g_SubSessionID == -1)
+            {
+                _vaProxy.WriteToLog("Subsession ID not set. Cannot save markers.", "red");
+                return;
+            }
+
+            string fileName = $"markers_{g_SubSessionID}.json";
+
+            try
+            {
+                string json = JsonConvert.SerializeObject(markers);
+                File.WriteAllText(Path.Combine(outputFolderPath, fileName), json);
+                _vaProxy.WriteToLog("Markers saved successfully.", "green");
+            }
+            catch (Exception ex)
+            {
+                _vaProxy.WriteToLog($"Error saving markers: {ex.Message}", "red");
+            }
+        }
+
+        public static List<Event> LoadMarkers()
+        {
+            // Get the "My Documents" folder path
+            string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Reference the folder named "PitGirlReplays" 
+            string inputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
+
+            if (g_SubSessionID == -1)
+            {
+                _vaProxy.WriteToLog("Subsession ID not set. Cannot load markers.", "red");
+                return new List<Event>();
+            }
+
+            string fileName = $"markers_{g_SubSessionID}.json";
+
+            try
+            {
+                if (File.Exists(Path.Combine(inputFolderPath,fileName)))
+                {
+                    string json = File.ReadAllText(Path.Combine(inputFolderPath, fileName));
+                    var loadedMarkers = JsonConvert.DeserializeObject<List<Event>>(json);
+                    _vaProxy.WriteToLog("Markers loaded successfully.", "green");
+                    return loadedMarkers;
+                }
+                else
+                {
+                    _vaProxy.WriteToLog("No marker data found", "red");
+                    return new List<Event>();
+                }
+            }
+            catch (Exception ex)
+            {
+                _vaProxy.WriteToLog($"Error loading markers: {ex.Message}", "red");
+                return new List<Event>();
+            }
         }
 
         private static void PlayEvent(Event stEvent, int bufferSecs = 0)
@@ -1478,6 +1586,9 @@ namespace Robertsmania
             usage += "                           {INT:~~CarNumberIncidentMarkerCount}! {INT:~~CarNumberOvertakeMarkerCount}!\n";
             usage += "                           {INT:~~CarNumberRadioMarkerCount}! {INT:~~CarNumberManualMarkerCount}!\n";
             usage += "                           {INT:~~CarNumberUndertakeMarkerCount}!\n";
+            usage += "Clear_Markers\n";
+            usage += "Load_Markers | My Documents/PitGirlReplay/markers_SessionID.json\n";
+            usage += "Save_Markers | My Documents/PitGirlReplay/markers_SessionID.json\n";
             _vaProxy.WriteToLog(usage, "pink");
         }
 
@@ -1512,6 +1623,44 @@ namespace Robertsmania
                         //string driverName = quotesStart + g_Drivers[g_CamCarIdx].UserName + quotesEnd;
                         //vaProxy.Command.Execute("Write File", true, true, null, "\"PitGirl is love!\"");
                         //}     
+                        break;
+                    }
+
+                case "Clear_Markers":
+                    {
+                        g_Markers = new List<Event>();
+
+                        break;
+                    }
+
+                case "Save_Markers":
+                    {
+                        SaveMarkers(g_Markers);
+
+                        break;
+                    }
+
+                case "Load_Markers":
+                    {
+                        List<Event> markers = LoadMarkers();
+                        if (markers != null)
+                        {
+                            g_Markers = markers;
+                            Event start = g_Markers.FirstOrDefault(e => e.EventType == MarkerType.Start);
+                            if (start.EventType == MarkerType.Start)
+                            {
+                                g_RaceStartEvent = start;
+                            }
+                            //computers are fast
+                            g_Markers.Sort((e1, e2) =>
+                            {
+                                //session first then time
+                                int ret = e1.Session.CompareTo(e2.Session);
+                                return ret != 0 ? ret : e1.Time.CompareTo(e2.Time);
+                            });
+                        }
+
+
                         break;
                     }
                 
