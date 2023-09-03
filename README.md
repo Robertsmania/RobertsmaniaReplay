@@ -1,6 +1,6 @@
 # RobertsmaniaPitGirl - iRacing Replay
 
-This project presents a plugin for <a href="https://voiceattack.com/" target="_blank" rel="noopener noreferrer">VoiceAttack</a> that integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
+This project presents a plugin for <a href="https://voiceattack.com/" target="_blank" rel="noopener noreferrer">VoiceAttack</a> which integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
 The iRacing telemetry data is monitored constantly and markers are recorded when any driver has an offtrack incident, overtake, undertake, or radio broadcast.  The race start and driver finishes are also entered as markers.
 
@@ -402,7 +402,7 @@ This is a basic set of commands that demonstrates the features of the plugin.  F
 
 The provided profile does have the commands setup for speech recognition and it will have the system confirm things like camera changes with speech synthesis.
 
-There are two boolean variables set on initialization that control the speech synthesis.  Both of those get set to true by default, but you can esaily change that in the Initialize command.
+There are two boolean variables set on initialization that control the speech synthesis.  Both of those get set to true by default, but you can easily change that in the Initialize command.
 
 * **SayAnything** - Controls whether anything is said.  If this is true, the system will speak.  If it is false it will not say anything.
 * **SayAnnouncements** - Secondary value to determine whether announcements like "Kris Roberts had an Overtake" are made when replay markers are played (but if SayAnything is false, then SayAnnouncements has no effect).
