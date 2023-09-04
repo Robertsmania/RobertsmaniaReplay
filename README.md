@@ -1,4 +1,4 @@
-# RobertsmaniaPitGirl - iRacing Replay
+# RobertsmaniaReplay - iRacing Replay System
 
 This project presents a plugin for <a href="https://voiceattack.com/" target="_blank" rel="noopener noreferrer">VoiceAttack</a> which integrates with the iRacing SDK to monitor race events and build a list of event markers to be used for replay review.
 
@@ -19,12 +19,13 @@ Return to the default state where all marker types for all cars will be presente
 The provided profile has commands that can be used with speech, but is also intended to work with a gamepad/controller so the use of speech recognition is not required.
 
 Here's a video overview:
-[![Robertsmania PitGirl iRacing Replay Overview](https://www.robertsmania.com/pitgirl/PitGirl_Replay_Overview_02.PNG)](https://youtu.be/C0pFp6Jwkww)
+
+[![Robertsmania Replay - iRacing Replay Overview](https://www.robertsmania.com/rmreplay/Robertsmania_Replay_Overview_02.PNG)](https://youtu.be/C0pFp6Jwkww)
 
 ## Controller
 This is the controller configuration I use, and what is in the provided VoiceAttack profile.  The goal is to make it easy to use the controller to review the replay data.  If you are not using voice commands, you will still need to interact with the standard iRacing UI to change cameras.  Also note that **NUMLOCK** on your keyboard will interfere with some of the controls, if things do not appear to be working try toggling NUMLOCK.
 
-![PitGirl Replay Controller Configuration](RobertsmaniaReplay/RobertsmaniaReplayControllerConfig_01.png)
+![Robertsmania Replay Controller Configuration](RobertsmaniaReplay/RobertsmaniaReplayControllerConfig_01.png)
 
 The analog stick and trigger inputs are not assigned.  You might experiment with mapping those to control the iRacing camera position/orientation to be able to fly the camera around as well. I've tried this with some success but your mileage may vary.
 
@@ -394,7 +395,7 @@ These are the high level commands in the provided profile:
 <tr>
 <td width='33%'><div style='max-height:4.8em;overflow:hidden'>[Initialize; reset; re-initialize] [Pit Girl;] [plugin; data;]</div></td>
 <td width='33%'><div style='max-height:4.8em;overflow:hidden'></div></td>
-<td width='33%'><div style='max-height:4.8em;overflow:hidden'>RobertsmaniaPitGirl Plugin Commands</div></td>
+<td width='33%'><div style='max-height:4.8em;overflow:hidden'>Robertsmania Replay Plugin Commands</div></td>
 </tr>
 </tbody>
 </table>
@@ -418,7 +419,7 @@ Listening - the way I use the system, I have VoiceAttack set to not listen by de
 
 The plugin provides these commands to be used within a VoiceAttack profile:
 ```
-RobertsmaniaPitGirlReplay commands:
+RobertsmaniaReplay commands:
 
 Print_Info
 Print_Cameras
@@ -456,7 +457,7 @@ Marker_Summary_CarNumber | {TXT:~~CarNumber} {INT:~~CarNumberMarkerCount}!
 ```
 
 ## Suggested Use
-Start VoiceAttack with the RobertsmaniaPitGirlReplay profile/plugin setup.
+Start VoiceAttack with the RobertsmaniaReplay profile/plugin setup.
 
 Join an iRacing session.
 
@@ -481,15 +482,15 @@ Enjoy.
 
 You must own a license for VoiceAttack to be able to use this (or any other) plugin: <a href="https://voiceattack.com/purchase.aspx" target="_blank" rel="noopener noreferrer">https://voiceattack.com/purchase.aspx</a>.
 
-Download the RobertsmaniaPitGirlReplay.vax file from the <a href="https://github.com/Robertsmania/RobertsmaniaPitGirl/releases" target="_blank" rel="noopener noreferrer">Releases Page</a> on this repository.
+Download the RobertsmaniaReplay.vax file from the <a href="https://github.com/Robertsmania/RobertsmaniaReplay/releases" target="_blank" rel="noopener noreferrer">Releases Page</a> on this repository.
 
 In the VoiceAttack options, disable plugin support if it is currently enabled and restart VoiceAttack.
 
-Import the RobertsmaniaPitGirlReplay.vax.  This will install the plugin and sample profile.
+Import the RobertsmaniaReplayReplay.vax.  This will install the plugin and sample profile.
 
 Enable plugin support in the VoiceAttack options.  Restart VoiceAttack.
 
-Select the RobertsmaniaPitGirlReplay profile.  The plugin should be initialized and the commands in the profile are available.
+Select the RobertsmaniaReplayReplay profile.  The plugin should be initialized and the commands in the profile are available.
 
 If you are new to VoiceAttack, be sure to run through the training to get the windows speech recognition to recognize your voice.  
 
