@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace Robertsmania
 {
 
-    public sealed class PitGirlReplay
+    public sealed class VAPlugin_RobertsmaniaReplay
     {
         private static dynamic _vaProxy;
         private static SdkWrapper _iRSDKWrapper;
@@ -388,7 +388,7 @@ namespace Robertsmania
             g_IsReplayPlaying = e.TelemetryInfo.IsReplayPlaying.Value;
             g_CamCameraState = e.TelemetryInfo.CamCameraState.Value;
             g_CamCarIdx = e.TelemetryInfo.CamCarIdx.Value;
-            g_PlayerCarDriverIncidentCount = e.TelemetryInfo.PlayerCarDriverIncidentCount.Value;
+            int newPlayerCarDriverIncidentCount = e.TelemetryInfo.PlayerCarDriverIncidentCount.Value;
 
             //Did the session just transition?
             if (g_CurrentSessionNum != e.TelemetryInfo.SessionNum.Value)
@@ -872,7 +872,29 @@ namespace Robertsmania
                 g_CarIdxRadioMarkerTimes[g_RadioTransmitCarIdx] = g_CurrentSessionTime;
             }
 
-            //Look for Off-Track Incidents
+            //Look for Incidents
+            //Check for iRacing incidents - only availble for our car.
+            //Always add regardless of other incdident marker times or session type.
+            if (newPlayerCarDriverIncidentCount >= 1 && newPlayerCarDriverIncidentCount > g_PlayerCarDriverIncidentCount)
+            {
+                int position = 0;
+                int classPosition = 0;
+                float distPct = 0;
+                if (g_TrackPositions != null)
+                {
+                    position = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_PlayerCarIdx).Position;
+                    classPosition = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_PlayerCarIdx).ClassPosition;
+                    distPct = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_PlayerCarIdx).DistPct;
+                }
+                Event incidentEvent = new Event(MarkerType.Incident, g_CurrentSessionNum, g_CurrentSessionTime - cIncidentBufferSecs, g_PlayerCarIdx, g_CarIdxLap[g_PlayerCarIdx], position, classPosition, distPct);
+                AddMarker(incidentEvent);
+                //_vaProxy.WriteToLog("iRacing Incident Detected: " + incidentEvent);
+                g_CarIdxIncidentMarkerTimes[g_PlayerCarIdx] = g_CurrentSessionTime;
+
+                g_PlayerCarDriverIncidentCount = newPlayerCarDriverIncidentCount;
+            }
+
+            //Look for Offtrack Incidents for everyone
             if (g_RacingSession || g_PracticingSession)
             {
                 for (int carIdx = 0; carIdx < g_CarIdxTrackSurface.Count(); carIdx++)
@@ -886,15 +908,14 @@ namespace Robertsmania
                             float distPct = 0;
                             if (g_TrackPositions != null)
                             {
-                                position = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_RadioTransmitCarIdx).Position;
-                                classPosition = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_RadioTransmitCarIdx).ClassPosition;
-                                distPct = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == g_RadioTransmitCarIdx).DistPct;
+                                position = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == carIdx).Position;
+                                classPosition = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == carIdx).ClassPosition;
+                                distPct = g_TrackPositions.FirstOrDefault(tp => tp.Driver.CarIdx == carIdx).DistPct;
                             }
                             Event incidentEvent = new Event(MarkerType.Incident, g_CurrentSessionNum, g_CurrentSessionTime - cIncidentBufferSecs, carIdx, g_CarIdxLap[carIdx], position, classPosition, distPct);
                             AddMarker(incidentEvent);
                             //_vaProxy.WriteToLog("OffTrack Incident Detected: " + incidentEvent);
                             g_CarIdxIncidentMarkerTimes[carIdx] = g_CurrentSessionTime;
-
                         } 
                     }
                 }
@@ -1294,7 +1315,7 @@ namespace Robertsmania
             //if (g_WatchingLive && newEvent.CarIdx > -1)
             //{
                 //_vaProxy.SetText("~~CarNumber",g_Drivers[newEvent.CarIdx].CarNumStr);
-                //_vaProxy.Command.Execute("A0 ir2pitgirl - Watch Car Number");
+                //_vaProxy.Command.Execute("A0 RobertsmaniaReplay - Watch Car Number");
             //}    
         }
 
@@ -1303,8 +1324,8 @@ namespace Robertsmania
             // Get the "My Documents" folder path
             string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            // Create a new folder named "PitGirlReplays" if it doesn't exist
-            string outputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
+            // Create a new folder named "RobertsmaniaReplays" if it doesn't exist
+            string outputFolderPath = Path.Combine(myDocumentsPath, "RobertsmaniaReplays");
             Directory.CreateDirectory(outputFolderPath);
 
             if (g_SubSessionID == -1)
@@ -1332,8 +1353,8 @@ namespace Robertsmania
             // Get the "My Documents" folder path
             string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            // Reference the folder named "PitGirlReplays" 
-            string inputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
+            // Reference the folder named "RobertsmaniaReplays" 
+            string inputFolderPath = Path.Combine(myDocumentsPath, "RobertsmaniaReplays");
 
             if (g_SubSessionID == -1)
             {
@@ -1487,7 +1508,7 @@ namespace Robertsmania
         #region PluginBoilerplate
         public static string VA_DisplayName()
         {
-            return "PitGirlReplay_VAPlugin - v" + cVersion.ToString();
+            return "RobertsmaniaReplay_VAPlugin - v" + cVersion.ToString();
         }
 
         public static string VA_DisplayInfo()
@@ -1552,7 +1573,7 @@ namespace Robertsmania
 
         public static void ShowUsage()
         {
-            string usage = "RobertsmaniaPitGirlReplay commands:\n";
+            string usage = "RobertsmaniaReplay commands:\n";
             usage += "Print_Info\n";
             usage += "Print_Cameras\n";
             usage += "Print_Drivers\n";
@@ -1587,8 +1608,8 @@ namespace Robertsmania
             usage += "                           {INT:~~CarNumberRadioMarkerCount}! {INT:~~CarNumberManualMarkerCount}!\n";
             usage += "                           {INT:~~CarNumberUndertakeMarkerCount}!\n";
             usage += "Clear_Markers\n";
-            usage += "Load_Markers | My Documents/PitGirlReplay/markers_SessionID.json\n";
-            usage += "Save_Markers | My Documents/PitGirlReplay/markers_SessionID.json\n";
+            usage += "Load_Markers | Documents/RobertsmaniaReplays/markers_SessionID.json\n";
+            usage += "Save_Markers | Documents/RobertsmaniaReplays/markers_SessionID.json\n";
             _vaProxy.WriteToLog(usage, "pink");
         }
 
@@ -1615,14 +1636,8 @@ namespace Robertsmania
             {
                 case "Test_Command":
                     {
-                        vaProxy.SetText("~~SaySomething", "Pitgirl is also love.");
-                        vaProxy.Command.Execute("A0 - SpeechCoordinator - Wait Say Something", false, true, null, "\"PitGirl is love!\"");
-                        //if (g_Drivers.Any())
-                        //{
-                        //    UpdateDriverInfoXML(g_CamCarIdx);
-                        //string driverName = quotesStart + g_Drivers[g_CamCarIdx].UserName + quotesEnd;
-                        //vaProxy.Command.Execute("Write File", true, true, null, "\"PitGirl is love!\"");
-                        //}     
+                        vaProxy.SetText("~~SaySomething", "Greetings!");
+                        vaProxy.Command.Execute("A0 - SpeechCoordinator - Wait Say Something", false, true, null, "\"Greetings.\"");
                         break;
                     }
 
@@ -1675,7 +1690,7 @@ namespace Robertsmania
                         {
                             _iRSDKWrapper.Camera.SwitchToCar(g_Drivers[g_MarkerCarIdxFilter].CarNumberRaw);
                         }
-                        //Try to handle the case where we havent seen the race start - PitGirl depends on us to not look clumsy
+                        //Try to handle the case where we havent seen the race start
                         if (g_RaceStartEvent.Time == 0)
                         {
                             //start of current session, then next lap than back a few secs 
@@ -2382,7 +2397,7 @@ namespace Robertsmania
 
                 default:
                     ShowUsage();
-                    vaProxy.WriteToLog("[" + vaProxy.Context + "] is not a recognized PitGirlVAPlugin command.  (" + vaProxy.Command.Name() + ") attempted to use it.", "red");
+                    vaProxy.WriteToLog("[" + vaProxy.Context + "] is not a recognized VAPlugin_RobertsmaniaReplay command.  (" + vaProxy.Command.Name() + ") attempted to use it.", "red");
                     break;
             }
         }

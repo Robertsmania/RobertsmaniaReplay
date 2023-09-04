@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Robertsmania</RootNamespace>
-    <AssemblyName>RobertsmaniaPitGirlReplay</AssemblyName>
+    <AssemblyName>RobertsmaniaReplay</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\..\Program Files\VoiceAttack\Apps\RobertsmaniaPitGirlReplay\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\Program Files\VoiceAttack\Apps\RobertsmaniaReplay\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
