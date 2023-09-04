@@ -18,6 +18,9 @@ Return to the default state where all marker types for all cars will be presente
 
 The provided profile has commands that can be used with speech, but is also intended to work with a gamepad/controller so the use of speech recognition is not required.
 
+Here's a video overview:
+[![Robertsmania PitGirl iRacing Replay Overview](https://www.robertsmania.com/pitgirl/PitGirl_Replay_Overview_02.PNG)](https://youtu.be/C0pFp6Jwkww)
+
 ## Controller
 This is the controller configuration I use, and what is in the provided VoiceAttack profile.  The goal is to make it easy to use the controller to review the replay data.  If you are not using voice commands, you will still need to interact with the standard iRacing UI to change cameras.  Also note that **NUMLOCK** on your keyboard will interfere with some of the controls, if things do not appear to be working try toggling NUMLOCK.
 
