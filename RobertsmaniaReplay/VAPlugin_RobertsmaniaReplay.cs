@@ -353,6 +353,10 @@ namespace Robertsmania
         {
             g_Connected = false;
             g_SessionDisplayName = "no longer in a session";
+            if (g_Markers != null && g_Markers.Any() && g_SimMode == "full")
+            {
+                SaveMarkers(g_Markers);
+            }
         }
 
         private static void ResetTrackPositionData()
@@ -1067,7 +1071,6 @@ namespace Robertsmania
                 g_CarIdxPositionMarkerTimes = new int[cMaxCars];
                 g_CarIdxRadioMarkerTimes = new int[cMaxCars];
                 g_CarIdxNotInWorldTimes = new int[cMaxCars];
-                g_Markers.Clear();
                 g_TimeFlagStatus.Clear();
                 g_RaceStartEvent = new Event(MarkerType.Start, 0, 0, cDontChangeCarIdx, 0);
                 g_StandingStart = 0;
@@ -1076,6 +1079,10 @@ namespace Robertsmania
                 g_PlayerCarDriverIncidentCount = 0; 
                 g_CarIdxTimeLapPositions = new List<TimeLapPosition>[cMaxCars];
                 g_SimMode = "";
+                g_Markers = new List<Event>();
+
+                LoadMarkers();
+
                 for (int i = 0; i < cMaxCars; i++)
                 {
                     g_CarIdxTimeLapPositions[i] = new List<TimeLapPosition>();
@@ -1352,41 +1359,57 @@ namespace Robertsmania
             }
         }
 
-        public static List<Event> LoadMarkers()
+        public static void LoadMarkers()
         {
+            if (g_SubSessionID == -1)
+            {
+                _vaProxy.WriteToLog("Subsession ID not set. Cannot load markers.", "yellow");
+                return;
+            }
+
             // Get the "My Documents" folder path
             string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            // Reference the folder named "RobertsmaniaReplays" 
-            string inputFolderPath = Path.Combine(myDocumentsPath, "RobertsmaniaReplays");
-
-            if (g_SubSessionID == -1)
-            {
-                _vaProxy.WriteToLog("Subsession ID not set. Cannot load markers.", "red");
-                return new List<Event>();
-            }
+            // Reference the folder named "PitGirlReplays" 
+            string inputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
 
             string fileName = $"markers_{g_SubSessionID}.json";
 
+            if (!File.Exists(Path.Combine(inputFolderPath, fileName)))
+            {
+                _vaProxy.WriteToLog("No marker data found", "red");
+                return;
+            }
+
             try
             {
-                if (File.Exists(Path.Combine(inputFolderPath,fileName)))
+                string json = File.ReadAllText(Path.Combine(inputFolderPath, fileName));
+                var loadedMarkers = JsonConvert.DeserializeObject<List<Event>>(json);
+
+                if (loadedMarkers != null)
                 {
-                    string json = File.ReadAllText(Path.Combine(inputFolderPath, fileName));
-                    var loadedMarkers = JsonConvert.DeserializeObject<List<Event>>(json);
+                    g_Markers = loadedMarkers;
+                    Event start = g_Markers.FirstOrDefault(e => e.EventType == MarkerType.Start);
+
+                    if (start.EventType == MarkerType.Start)
+                    {
+                        g_RaceStartEvent = start;
+                    }
+
+                    //computers are fast
+                    g_Markers.Sort((e1, e2) =>
+                    {
+                        //session first then time
+                        int ret = e1.Session.CompareTo(e2.Session);
+                        return ret != 0 ? ret : e1.Time.CompareTo(e2.Time);
+                    });
+
                     _vaProxy.WriteToLog("Markers loaded successfully.", "green");
-                    return loadedMarkers;
-                }
-                else
-                {
-                    _vaProxy.WriteToLog("No marker data found", "red");
-                    return new List<Event>();
                 }
             }
             catch (Exception ex)
             {
                 _vaProxy.WriteToLog($"Error loading markers: {ex.Message}", "red");
-                return new List<Event>();
             }
         }
 
@@ -1544,6 +1567,11 @@ namespace Robertsmania
                 _iRSDKWrapper.Stop();
                 _iRSDKWrapper = null;
             }
+
+            if (g_Markers != null && g_Markers.Any())
+            {
+                SaveMarkers(g_Markers);
+            }
         }
 
         public static void VA_Init1(dynamic vaProxy)
@@ -1661,25 +1689,8 @@ namespace Robertsmania
 
                 case "Load_Markers":
                     {
-                        List<Event> markers = LoadMarkers();
-                        if (markers != null)
-                        {
-                            g_Markers = markers;
-                            Event start = g_Markers.FirstOrDefault(e => e.EventType == MarkerType.Start);
-                            if (start.EventType == MarkerType.Start)
-                            {
-                                g_RaceStartEvent = start;
-                            }
-                            //computers are fast
-                            g_Markers.Sort((e1, e2) =>
-                            {
-                                //session first then time
-                                int ret = e1.Session.CompareTo(e2.Session);
-                                return ret != 0 ? ret : e1.Time.CompareTo(e2.Time);
-                            });
-                        }
-
-
+                        LoadMarkers();
+                        
                         break;
                     }
                 
