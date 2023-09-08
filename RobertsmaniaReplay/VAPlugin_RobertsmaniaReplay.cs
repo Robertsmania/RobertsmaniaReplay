@@ -447,9 +447,13 @@ namespace Robertsmania
             }
             else
             {
-                _vaProxy.WriteToLog("g_CurrentSessionNum OUT OF BOUNDS: " + g_CurrentSessionNum, "red");
-                if (g_SessionNames != null) {
-                    _vaProxy.WriteToLog("g_SessionNames count: " + g_SessionNames.Count, "red");
+                if (g_SubSessionID != -1) //Otherwise waiting for session data
+                {
+                    _vaProxy.WriteToLog("g_CurrentSessionNum OUT OF BOUNDS: " + g_CurrentSessionNum, "red");
+                    if (g_SessionNames != null)
+                    {
+                        _vaProxy.WriteToLog("g_SessionNames count: " + g_SessionNames.Count, "red");
+                    }
                 }
             }
 
