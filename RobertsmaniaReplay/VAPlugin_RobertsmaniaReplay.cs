@@ -58,6 +58,9 @@ namespace Robertsmania
         public static bool g_QualifyingSession = false;
         public static bool g_RacingSession = false;
 
+        private static bool g_AutoLoadSaveReplayFiles = false;
+        private static bool g_RecordMarkersInReplayMode = false;
+
         private static string g_EventType = "";
         private static int g_SubSessionID = -1;
         private static int g_NumCarClasses = 0;
@@ -353,7 +356,7 @@ namespace Robertsmania
         {
             g_Connected = false;
             g_SessionDisplayName = "no longer in a session";
-            if (g_Markers != null && g_Markers.Any() && g_SimMode == "full")
+            if (g_AutoLoadSaveReplayFiles && g_Markers != null && g_Markers.Any() && g_SimMode == "full")
             {
                 SaveMarkers(g_Markers);
             }
@@ -1081,7 +1084,10 @@ namespace Robertsmania
                 g_SimMode = "";
                 g_Markers = new List<Event>();
 
-                LoadMarkers();
+                if (g_AutoLoadSaveReplayFiles)
+                { 
+                    LoadMarkers();
+                }
 
                 for (int i = 0; i < cMaxCars; i++)
                 {
@@ -1568,7 +1574,7 @@ namespace Robertsmania
                 _iRSDKWrapper = null;
             }
 
-            if (g_Markers != null && g_Markers.Any())
+            if (g_AutoLoadSaveReplayFiles &&  g_Markers != null && g_Markers.Any())
             {
                 SaveMarkers(g_Markers);
             }
@@ -1581,6 +1587,7 @@ namespace Robertsmania
             //note that in this version, you can get and set the VoiceAttack variables directly.
 
             _vaProxy = vaProxy;
+            _vaProxy.Command.Execute("Initialize RobertsmaniaReplay plugin", true, true, null);
 
             if (_iRSDKWrapper == null)
             {
@@ -1600,6 +1607,10 @@ namespace Robertsmania
             {
                 g_Drivers[i] = new DriverEntry(0, 0);
             }
+
+            bool? autoLoadSaveReplayFiles = _vaProxy.GetBoolean("AutoLoadSaveReplayFiles");
+            g_AutoLoadSaveReplayFiles = autoLoadSaveReplayFiles ?? false;
+            //_vaProxy.WriteToLog($"AutoLoadSaveReplayFiles: {g_AutoLoadSaveReplayFiles}", "yellow");
         }
         #endregion
 
