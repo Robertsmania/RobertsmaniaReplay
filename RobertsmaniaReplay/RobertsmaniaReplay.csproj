@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\..\Program Files\VoiceAttack\Apps\RobertsmaniaPitGirlReplay\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\Program Files\VoiceAttack\Apps\RobertsmaniaReplay\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

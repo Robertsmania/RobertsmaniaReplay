@@ -58,9 +58,6 @@ namespace Robertsmania
         public static bool g_QualifyingSession = false;
         public static bool g_RacingSession = false;
 
-        private static bool g_AutoLoadSaveReplayFiles = false;
-        private static bool g_RecordMarkersInReplayMode = false;
-
         private static string g_EventType = "";
         private static int g_SubSessionID = -1;
         private static int g_NumCarClasses = 0;
@@ -356,7 +353,10 @@ namespace Robertsmania
         {
             g_Connected = false;
             g_SessionDisplayName = "no longer in a session";
-            if (g_AutoLoadSaveReplayFiles && g_Markers != null && g_Markers.Any() && g_SimMode == "full")
+
+            bool autoLoadSaveReplayFiles = _vaProxy.GetBoolean("AutoLoadSaveReplayFiles") ?? false;
+            bool recordMarkersInReplayMode = _vaProxy.GetBoolean("RecordMarkersInReplayMode") ?? false;
+            if (autoLoadSaveReplayFiles && g_Markers != null && g_Markers.Any() && (g_SimMode == "full" || recordMarkersInReplayMode))
             {
                 SaveMarkers(g_Markers);
             }
@@ -1084,7 +1084,8 @@ namespace Robertsmania
                 g_SimMode = "";
                 g_Markers = new List<Event>();
 
-                if (g_AutoLoadSaveReplayFiles)
+                bool autoLoadSaveReplayFiles = _vaProxy.GetBoolean("AutoLoadSaveReplayFiles") ?? false;
+                if (autoLoadSaveReplayFiles)
                 { 
                     LoadMarkers();
                 }
@@ -1309,16 +1310,22 @@ namespace Robertsmania
 
         private static void AddMarker(Event newEvent)
         {
-            if (g_SimMode != "full") 
+            //Exit if the sim isnt actually running (saved replay file)
+            //and the option for record markers in replay mode is false.
+            bool recordMarkersInReplayMode = _vaProxy.GetBoolean("RecordMarkersInReplayMode") ?? false;
+            if (g_SimMode != "full" && !recordMarkersInReplayMode) 
             {
-                //Dont record markers unless the sim is actually running (saved replay file).
                 return;
             }
+
             if (!g_Markers.Contains(newEvent))
             {
                 g_Markers.Add(newEvent);
                 _vaProxy.WriteToLog($"Marker added: {newEvent}", "green");
-                //_vaProxy.WriteToLog("Marker added: " + g_Markers.Count());
+                if (g_SimMode != "full")
+                {
+                    _vaProxy.WriteToLog("Adding markers in Replay Mode. Toggle Record Markers In Replay Mode to disable.", "yellow");
+                }
             }
             //computers are fast
             g_Markers.Sort((e1, e2) =>
@@ -1574,7 +1581,8 @@ namespace Robertsmania
                 _iRSDKWrapper = null;
             }
 
-            if (g_AutoLoadSaveReplayFiles &&  g_Markers != null && g_Markers.Any())
+            bool autoLoadSaveReplayFiles = _vaProxy.GetBoolean("AutoLoadSaveReplayFiles") ?? false;
+            if (autoLoadSaveReplayFiles &&  g_Markers != null && g_Markers.Any())
             {
                 SaveMarkers(g_Markers);
             }
@@ -1607,10 +1615,6 @@ namespace Robertsmania
             {
                 g_Drivers[i] = new DriverEntry(0, 0);
             }
-
-            bool? autoLoadSaveReplayFiles = _vaProxy.GetBoolean("AutoLoadSaveReplayFiles");
-            g_AutoLoadSaveReplayFiles = autoLoadSaveReplayFiles ?? false;
-            //_vaProxy.WriteToLog($"AutoLoadSaveReplayFiles: {g_AutoLoadSaveReplayFiles}", "yellow");
         }
         #endregion
 
