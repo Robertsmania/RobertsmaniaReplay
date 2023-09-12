@@ -20,7 +20,7 @@ namespace Robertsmania
         private static dynamic _vaProxy;
         private static SdkWrapper _iRSDKWrapper;
 
-        private const float cVersion = 1.003f;
+        private const float cVersion = 1.004f;
         private const int cUpdatesPerSec = 4;
         public const int cThrottleMSecs = 1000 / cUpdatesPerSec;
         public const int cMaxCars = 64;
