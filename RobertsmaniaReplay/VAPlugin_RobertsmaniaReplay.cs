@@ -375,6 +375,10 @@ namespace Robertsmania
                 {
                     g_CarIdxTimeLapPositions[i].Clear();
                 }
+                else
+                {
+                    g_CarIdxTimeLapPositions[i] = new List<TimeLapPosition>();
+                }
             }
         }
 
@@ -1186,6 +1190,10 @@ namespace Robertsmania
 
         public static bool NotInWorldPositionCheck(int carIdx)
         {
+            if (carIdx < 0)
+            {
+                return false;
+            }
             return g_CurrentSessionTime - g_CarIdxNotInWorldTimes[carIdx] > cNotInWorldTimeoutSecs;
         }
 
@@ -1595,7 +1603,6 @@ namespace Robertsmania
             //note that in this version, you can get and set the VoiceAttack variables directly.
 
             _vaProxy = vaProxy;
-            _vaProxy.Command.Execute("Initialize RobertsmaniaReplay plugin", true, true, null);
 
             if (_iRSDKWrapper == null)
             {
@@ -1615,6 +1622,8 @@ namespace Robertsmania
             {
                 g_Drivers[i] = new DriverEntry(0, 0);
             }
+
+            _vaProxy.Command.Execute("Initialize RobertsmaniaReplay plugin", false, true, null);
         }
         #endregion
 
