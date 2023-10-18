@@ -1391,14 +1391,15 @@ namespace Robertsmania
             // Get the "My Documents" folder path
             string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            // Reference the folder named "PitGirlReplays" 
-            string inputFolderPath = Path.Combine(myDocumentsPath, "PitGirlReplays");
+            // Reference the folder named "RobertsmaniaReplays" 
+            string inputFolderPath = Path.Combine(myDocumentsPath, "RobertsmaniaReplays");
 
             string fileName = $"markers_{g_SubSessionID}.json";
 
             if (!File.Exists(Path.Combine(inputFolderPath, fileName)))
             {
                 _vaProxy.WriteToLog("No marker data found", "red");
+                _vaProxy.WriteToLog(Path.Combine(inputFolderPath, fileName), "red");
                 return;
             }
 
@@ -1616,7 +1617,7 @@ namespace Robertsmania
             _iRSDKWrapper.TelemetryUpdateFrequency = cUpdatesPerSec;
             _iRSDKWrapper.Start();
 
-            //seems clumsy but there is no default constror for structs
+            //seems clumsy but there is no default constructor for structs
             //TODO any other data structures need intialiaztion?
             for (int i = 0; i < g_Drivers.Length; i++)
             {
