@@ -1024,12 +1024,18 @@ namespace Robertsmania
                     }
                 }
                 if (e.SessionInfo["DriverInfo"]["Drivers"]["CarIdx", i]["LicColor"].TryGetValue(out string licColorStr))
-                {
-                    if (licColorStr != "")
+                    if (licColorStr != "" && !licColorStr.Contains("undefined"))
                     {
                         licColor = "#" + Convert.ToInt32(licColorStr, 16).ToString("X6");
                     }
-                }
+                    else
+                    {
+                        // Handle the case where licColorStr is "undefined" or empty
+                        // For example, you could log a warning or set a default color
+                        _vaProxy.WriteToLog($"LicColor is not defined or is 'undefined': {licColorStr}", "yellow");
+                        licColor = "#FFFFFF"; // Set a default color if 'LicColor' is 'undefined' or empty
+                    }
+
                 if (e.SessionInfo["DriverInfo"]["Drivers"]["CarIdx", i]["CarClassID"].TryGetValue(out string carClassIdStr))
                 {
                     if (carClassIdStr != "")
